@@ -7,13 +7,11 @@ import { useTurn } from '@/composables'
 const player_1 = ref<Player>({
   id: 'player_1',
   order: 1,
-  name: 'Adam',
 })
 
 const player_2 = ref<Player>({
   id: 'player_2',
   order: 2,
-  name: 'Robin',
 })
 
 const field = ref(Array(9).fill(null))
@@ -29,6 +27,7 @@ const onCellClick = (cell: number, player: Player, field: any) => {
 </script>
 
 <template>
+  <div class="absolute top-30">{{ current_player.id }}</div>
   <div class="grid grid-cols-3 gap-[0.1px]">
     <Cell
       v-for="(cellSymbol, index) in field"
