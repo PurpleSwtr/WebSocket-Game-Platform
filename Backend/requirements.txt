@@ -1,0 +1,5 @@
+# В дальнейшем добавить сюда версии
+
+fastapi
+websockets
+uvicorn
