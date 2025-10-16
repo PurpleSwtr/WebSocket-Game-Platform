@@ -39,9 +39,15 @@ class GameSession(BaseModel):
             [(0,2),(1,2),(2,2)],
         ]
         for comb in win_combos:
-            ...
+            for coordinates in comb:
+                try_combination = []
+                try_combination.append(self.field[coordinates[0]][coordinates[1]])
+                if len(try_combination) > 2:
+                    normalize_combinations = set(try_combination)
+                    if len(try_combination) == len(normalize_combinations):
+                        return True
 
-
-
+gs = GameSession(session_id="1", field=[["0","1","0"],["0","1","0"],["0","1","0"]])
+print(gs.win_check())
     
 active_sessions: dict[str, GameSession] = {}
