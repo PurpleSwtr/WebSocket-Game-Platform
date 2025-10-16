@@ -1,17 +1,18 @@
-from typing import Any, Optional
-from pydantic import BaseModel
-from uuid import uuid4
+# src/core/models.py
+from pydantic import BaseModel, Field
+from uuid import UUID, uuid4
 
 class Player(BaseModel):
-    id: str = uuid4().hex
+    id: UUID = Field(default_factory=uuid4)
     name: str
-    ws_session: Optional[Any] = None
+
+players_db: dict[UUID, Player] = {}
 
 class GameSession(BaseModel):
     session_id: str
-    players: dict[str, Player] = {}
+    players: dict[UUID, Player] = {}
     field: list[list[str]] = None
-    current_turn: str = None
+    current_turn: UUID = None
     status: str = "waiting"
     
 active_sessions: dict[str, GameSession] = {}

@@ -1,22 +1,22 @@
-from typing import Annotated
-# from fastapi.datastructures import FormData
-from fastapi import APIRouter, Depends, Form, HTTPException
-from ..core.models import Player, GameSession
-from ..core.session_data import session_data
+# src/users/router.py
+from uuid import UUID
+from fastapi import APIRouter, HTTPException, Body
+from ..core.models import Player, players_db
+
 router = APIRouter(prefix='/users', tags=['Пользователи'])
 
-@router.get("/player/{username}", response_model=Player)
-async def player(username: str) -> Player:
-    username = str(username)
-    if session_data.players and username in session_data.players:
-        return session_data.players[username]
-    raise HTTPException(status_code=404, detail="Игрок не найден")
+@router.get("/player/{player_id}", response_model=Player)
+async def get_player(player_id: UUID) -> Player:
+    player = players_db.get(player_id)
+    if not player:
+        raise HTTPException(status_code=404, detail="Игрок не найден")
+    return player
 
 @router.get("/players")
-async def players():
-    return session_data.players
+async def get_all_players():
+    return list(players_db.values())
     
-@router.post("/new_user/")
-async def new_user(data: Annotated[Player, Form()]) -> Player:
-    session_data.players[data.name] = data
-    return data
+@router.post("/new_user/", response_model=Player)
+async def new_user(player_data: Player = Body(...)) -> Player:
+    players_db[player_data.id] = player_data
+    return player_data
