@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
-
+import random
 class Player(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str
@@ -14,13 +14,12 @@ class GameSession(BaseModel):
     current_turn: UUID = None
     winner_player: UUID = None
     markers: dict[UUID, str] = {}
+    prepared_players: list[UUID] = []
+    voted_restart: list[UUID] = []
     status: str = "waiting"
     
     async def choose_img(self, user_id: str, marker_type: str) -> None:
         self.markers[user_id] = marker_type
-
-    async def move(self, user_id: str, row: int, col: int) -> None:
-        self.field[row][col] =self.markers[user_id]
 
     #   0 1 2
     # 0 * * *
@@ -58,12 +57,16 @@ class GameSession(BaseModel):
             return False
         else: return True
 
+    def roll_first_turn(self) -> None:
+        self.current_turn = list(self.players.keys())[random.randint(0,1)]
+
     def change_turn(self):
         players = list(self.players.keys())
         if not players:
             return None
+        # Она тут по факту уже не нужна, так как вынесена в отдельный метод перед началом игры, но во избежании ошибок когда никто вдруг не может походить можно и оставить проверочку
         if self.current_turn is None:
-            self.current_turn = players[0]
+            self.current_turn = players[random.randint(0,1)]
         else:
             current_index = players.index(self.current_turn)
             next_index = (current_index + 1) % len(players)
@@ -72,7 +75,10 @@ class GameSession(BaseModel):
         return self.current_turn
     
     def action_move(self, user_id: UUID, row: int, col: int) -> bool:
-
+        if not isinstance(row, int) or not isinstance(col, int):
+            return False
+        if row or col > 2:
+            return False
         if user_id != self.current_turn:
             return False
         if self.field[row][col] is not None:
@@ -85,10 +91,10 @@ class GameSession(BaseModel):
             self.winner_player = user_id
         elif self.draw_check():
             self.status = "finished"
-        ...
+        return True
+    
     def action_exit(self, user_id: UUID):
         self.players[user_id] = None
-        ...
 
     def dev_draw_field(self):
         for row in range(3):
@@ -103,34 +109,34 @@ class GameSession(BaseModel):
 
 active_sessions: dict[str, GameSession] = {}
 
-gs = GameSession(session_id="1")
+# NOTE: МОЯ ТЕСТОВАЯ ЗОНА - НЕ ЗАБЫВАЙ, ЕЁ НУЖНО КОММЕНТИРОВАТЬ ПРИ ЗАПУСКЕ СЕРВЕРА, 
+# ПОТОМУ ЧТО ЭТО ИСПОЛНЯЕМЫЙ КОД, А В ДАЛЬНЕЙШЕМ ОН ИМПОРТИРУЕТСЯ КАК МОДУЛЬ
 
+# gs = GameSession(session_id="1")
 
+# p1 = Player(name="jonh")
+# p2 = Player(name="bob")
 
-p1 = Player(name="jonh")
-p2 = Player(name="bob")
+# gs.markers[p1.id] = "X"
+# gs.markers[p2.id] = "O"
 
-gs.markers[p1.id] = "0"
-gs.markers[p2.id] = "X"
+# gs.players[p1.id] = p1
+# gs.players[p2.id] = p2
 
+# gs.current_turn = p1.id
 
-gs.players[p1.id] = p1
-gs.players[p2.id] = p2
+# while gs.status == "waiting":
+#     r = input()
+#     c = input()
+#     move = gs.action_move(user_id=gs.current_turn, row=r, col=c)
+#     if move:
+#         gs.change_turn()
 
-gs.current_turn = p1.id
+#     gs.dev_draw_field()
 
-while gs.status == "waiting":
-    r = input()
-    c = input()
-    gs.action_move(user_id=gs.current_turn, row=int(r), col=int(c))
-    gs.change_turn()
+# print(gs.status)
 
-    gs.dev_draw_field()
-
-print(gs.status)
-
-print(gs.winner_player)
-
+# print(gs.winner_player)
 
 # gs.change_turn(user_id=p1.id)
 # print(gs.current_turn)

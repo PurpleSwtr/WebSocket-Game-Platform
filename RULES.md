@@ -3,6 +3,11 @@
 {"user": "uuid", "action": "choose", "type": "circle"}
 ```
 ---
+**prepare**: Пользователь нажимает готов!
+```json
+{"user": "uuid", "action": "prepare"}
+```
+---
 **move**: ход в клетку
 ```json
 {"user": "uuid", "action": "move", "row": 1, "col": 2}
