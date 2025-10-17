@@ -16,6 +16,11 @@ class GameSession(BaseModel):
     markers: dict[UUID, str] = {}
     status: str = "waiting"
 
+    # Реализовать: 
+    # проверку на выигрыш
+    # проверку на ничью
+    # переход хода
+
     async def choose_img(self, user_id: str, marker_type: str) -> None:
         self.markers[user_id] = marker_type
 
@@ -27,7 +32,8 @@ class GameSession(BaseModel):
     # 1 * * * 
     # 2 * * *
 
-    async def win_check(self):
+    # async def win_check(self):
+    def win_check(self):
         win_combos = [
             [(0,0),(1,1),(2,2)],
             [(0,2),(1,1),(2,0)],
@@ -38,16 +44,22 @@ class GameSession(BaseModel):
             [(0,1),(1,1),(2,1)],
             [(0,2),(1,2),(2,2)],
         ]
-        for comb in win_combos:
-            for coordinates in comb:
-                try_combination = []
-                try_combination.append(self.field[coordinates[0]][coordinates[1]])
-                if len(try_combination) > 2:
-                    normalize_combinations = set(try_combination)
-                    if len(try_combination) == len(normalize_combinations):
-                        return True
+        # for comb in win_combos:
+        #     try_combination = []
+        #     for coordinates in comb:
+        #         try_combination.append(self.field[coordinates[0]][coordinates[1]])
+        #         if len(try_combination) > 2:
+        #             normalize_combinations = set(try_combination)
+        #             if len(try_combination) == len(normalize_combinations):
+        #                 return True
 
-gs = GameSession(session_id="1", field=[["0","1","0"],["0","1","0"],["0","1","0"]])
-print(gs.win_check())
+gs = GameSession(session_id="1") 
+gs.field=[
+    [None,"1",None],
+    [None,"1",None],
+    [None,"1",None]
+    ]
+check = gs.win_check()
+print(check)
     
 active_sessions: dict[str, GameSession] = {}
