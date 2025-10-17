@@ -1,3 +1,11 @@
+## Состояния игры:
+
+```
+waiting -> ready -> prepared -> 
+starting -> playing -> finished 
+-> restart -> exit -> waiting
+```
+---
 **choose_img**: выбор фигуры которой игрок будет ходить
 ```json
 {"user": "uuid", "action": "choose", "type": "circle"}
@@ -5,7 +13,7 @@
 ---
 **prepare**: Пользователь нажимает готов!
 ```json
-{"user": "uuid", "action": "prepare"}
+{"user": "uuid", "action": "prepared"}
 ```
 ---
 **move**: ход в клетку

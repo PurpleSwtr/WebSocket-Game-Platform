@@ -28,6 +28,8 @@ class ConnectionManager:
 manager = ConnectionManager()
 # Примерное сообщение с форнтенда:
 # {"user": "uuid", "action": "move", "row": 1, "col": 2}
+# NOTE: В дальнейшем переехали в основной файл RULES.md,
+# который описывает вообще весь state, примеры запросов от пользователей и прочие нюансы логики
 
 @router.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
@@ -43,16 +45,18 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
 
             massage = json.loads(data)
             session = active_sessions[session_id]
-            if len(session.players) == 2:
+            if len(session.players) == REQUIRED_PLAYERS:
+                session.status = "ready"
+            if session.status == "ready":
                 if massage["action"] == "choose":
                     if massage["type"] != '':
                         session.choose_img(user_id=massage["user"], marker_type=massage["type"])
                 
-                if massage["action"] == "prepare":
+                if massage["action"] == "prepared":
                     session.prepared_players.append(massage["user"])
 
-                if len(session.markers == 2):
-                    if len(session.prepared_players) == 2:
+                if len(session.markers == REQUIRED_PLAYERS):
+                    if len(session.prepared_players) == REQUIRED_PLAYERS:
                         session.status = "starting"
 
                 if session.status == "starting":
@@ -66,7 +70,9 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                         session.voted_restart.append(massage["user"])
                     if massage["action"] == "exit":
                         session.players.pop(session.player_id)
-                    if len(session.voted_restart) == 2:
+                        session.status = "waiting"
+                    if len(session.voted_restart) == REQUIRED_PLAYERS:
+                        # NOTE: Вот тут важно подумать над механикой рестарта, возможно лучше откидывать игроков заново на выбор своего значка которым он будет ходить, для разнообразия, либо придумать отдельный для этого вообще state
                         session.status = "starting"
                 # TODO: Продумать логику для уже задуманной фичи emote, но она не первостепенная для mvp так что отложим
             data = session
