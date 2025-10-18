@@ -7,6 +7,9 @@ class Player(BaseModel):
 
 players_db: dict[UUID, Player] = {}
 
+# TODO: Подумать над тем, чтобы сделать все методы асинхронными
+# Потому что это перерастёт в большую проблему, если вдруг окажется что сессия
+# не может выдержать больше чем два подключения из-за этого...
 class GameSession(BaseModel):
     session_id: str
     players: dict[UUID, Player] = {}
@@ -17,8 +20,11 @@ class GameSession(BaseModel):
     prepared_players: list[UUID] = []
     voted_restart: list[UUID] = []
     status: str = "waiting"
-    
-    async def choose_img(self, user_id: str, marker_type: str) -> None:
+    # TODO: Сделать проерку на несуществующие типы, задать те которые подразумеваются,
+    # по типу крестик, ноль, другие фигуры которые подразумеваются для разнообразия, как фича.
+    # При этом также учитывать, что пользователи не могут выбрать одну и ту же, если она уже выбрана
+    # TODO: Сделать отображение на фронте как бы залоченных уже значков
+    def choose_img(self, user_id: UUID, marker_type: str) -> None:
         self.markers[user_id] = marker_type
 
     #   0 1 2
@@ -42,7 +48,7 @@ class GameSession(BaseModel):
         for win_comb in win_combos:
             symbols = []
             for r, c in win_comb:
-                symb = self.field[c][r]
+                symb = self.field[r][c]
                 symbols.append(symb)
             if len(set(symbols)) == 1 and not None in set(symbols):
                 return True
@@ -74,17 +80,19 @@ class GameSession(BaseModel):
         
         return self.current_turn
     
-    def action_move(self, user_id: UUID, row: int, col: int) -> bool:
+    def action_move(self, user_id: UUID, row: str, col: str) -> bool:
+        row = int(row)
+        col = int(col)
         if not isinstance(row, int) or not isinstance(col, int):
             return False
-        if row or col > 2:
+        if row > 2 or col > 2:
             return False
         if user_id != self.current_turn:
             return False
         if self.field[row][col] is not None:
             return False
 
-        self.field[row][col] =self.markers[user_id]
+        self.field[row][col] = self.markers[user_id] 
 
         if self.win_check():
             self.status = "finished"
