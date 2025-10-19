@@ -27,12 +27,14 @@ import { useRouter } from 'vue-router';
 
 const sessions = ref<Session[]>([]);
 const isLoading = ref(true);
-const player = "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+// Это была затычка, нужно ещё подумаь над тем как именно хранить пользователя
+// const player = "3fa85f64-5717-4562-b3fc-2c963f66afa7"
 const router = useRouter()
 
 const onSessionOpen = async (session_id: string) => {
   try {
-    const endpoint = `session/join_session/${session_id}?player_id=${player}`;
+    // const endpoint = `session/join_session/${session_id}?player_id=${player}`;
+    const endpoint = `session/join_session/${session_id}`;
     await useApi.patch(endpoint, null);
     router.push(`/session/${session_id}`);
   } catch (error) {
