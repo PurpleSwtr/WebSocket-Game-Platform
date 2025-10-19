@@ -11,7 +11,7 @@ const props = defineProps({
 <template>
   <div
     class="bg-gray-300 w-8 h-8 rounded-xl m-1 hover:bg-gray-400 transition-colors duration-100 hover:cursor-pointer text-center p-1"
-    @click="$emit('cellClick', cell_id)"
+    @click="$emit('cellClick', row, col)"
   >
     <p>{{ symbol }}</p>
   </div>

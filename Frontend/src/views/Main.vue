@@ -1,5 +1,8 @@
 <!-- Это будет главный экран с где можно и зарегаться и создать лобби и прочее -->
 <template>
+  <div>
+  <input type="text" placeholder="ID" class="bg-white border-2 mx-50 mt-5" v-model="playerId"></input>
+  <AppButton message="Создать сессию" @click="onCreateSession"></AppButton>
   <div class="p-20 grid grid-cols-3 gap-10">
 
     <div v-if="isLoading" class="p-4">
@@ -16,6 +19,7 @@
     </div>
 
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -24,21 +28,34 @@ import { ref, onMounted } from 'vue';
 import { BackendURL, WebSocketURL, type Session } from '@/types/types';
 import CardSession from '@/components/ui/CardSession.vue';
 import { useRouter } from 'vue-router';
+import AppButton from '@/components/ui/AppButton.vue';
 
 const sessions = ref<Session[]>([]);
 const isLoading = ref(true);
-// Это была затычка, нужно ещё подумаь над тем как именно хранить пользователя
-// const player = "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+const playerId = ref('')
 const router = useRouter()
+
+const onCreateSession = async () => {
+  try {
+    const endpoint = `session/create_session/?player_id=${playerId.value}`;
+    const response = await useApi.post(endpoint, {});
+    const newSession: Session = response.data;
+    router.push(`/session/${newSession.session_id}`);
+  } catch (error) {
+    console.error("Ошибка при создании сессии:", error);
+  }
+};
 
 const onSessionOpen = async (session_id: string) => {
   try {
-    // const endpoint = `session/join_session/${session_id}?player_id=${player}`;
-    const endpoint = `session/join_session/${session_id}`;
+    const endpoint = playerId.value
+      ? `session/join_session/${session_id}?player_id=${playerId.value}`
+      : `session/join_session/${session_id}`;
     await useApi.patch(endpoint, null);
     router.push(`/session/${session_id}`);
   } catch (error) {
-    console.error(error);
+    console.error("Ошибка при присоединении к сессии:", error);
+    alert("Не удалось присоединиться к сессии. Возможно, она уже заполнена.");
   }
 };
 
@@ -46,7 +63,6 @@ onMounted(async () => {
   try {
     const result = await useApi.get('session/sessions');
     sessions.value = result.data;
-    console.log(sessions.value)
   } catch (error) {
     console.error("Ошибка при загрузке сессий:", error);
   } finally {

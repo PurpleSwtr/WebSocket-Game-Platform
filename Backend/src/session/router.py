@@ -14,7 +14,8 @@ async def get_player_by_id(player_id: UUID) -> Player:
     return player
 
 @router.post("/create_session/", response_model=GameSession)
-async def create_session(player: Player = Depends(get_player_by_id)):
+async def create_session(player_id: UUID = Query(..., alias="player_id")):
+    player = await get_player_by_id(player_id)
     session_id = str(uuid4())
     new_session = GameSession(
         session_id=session_id,
