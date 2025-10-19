@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import Cell from '@/components/Cell.vue'
-import Field from './components/Field.vue'
+import TicTacToe from './views/TicTacToe.vue';
+
 </script>
-<template>
-  <main class="flex justify-center items-center min-h-screen">
-    <Field />
-  </main>
+<template >
+  <body class="bg-gray-100 h-full w-full">
+    <RouterView class="" />
+  </body>
 </template>
 
 <style scoped>
-.text {
-  background-color: green;
-  color: white;
-}
+
 </style>

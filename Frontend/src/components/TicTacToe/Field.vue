@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Cell from '@/components/Cell.vue'
+import Cell from '@/components/TicTacToe/Cell.vue'
 import type { Player } from '@/types/types'
-import { ref } from 'vue'
-import { useTurn } from '@/composables'
+import { ref, watch } from 'vue'
+import { useTurn, useWS } from '@/composables'
 
 const player_1 = ref<Player>({
   id: 'player_1',
@@ -14,16 +14,23 @@ const player_2 = ref<Player>({
   order: 2,
 })
 
-const field = ref(Array(9).fill(null))
+let ws_data = ref<any>({})
 
+const field = ref(Array(9).fill(null))
 const current_player = ref(player_1.value)
 
 const onCellClick = (cell: number, player: Player, field: any) => {
-  field[cell] = useTurn(player)
-  console.log((field[cell] = useTurn(current_player.value)))
-  current_player.value = current_player.value.order == 1 ? player_2.value : player_1.value
-  console.log(current_player.value)
+  const testMessage = {
+    user: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+    action: 'prepared',
+  }
+  useWS('b3959e78-b023-4287-aaf7-c66e7b46abc8', testMessage, ws_data)
 }
+
+watch(ws_data, (newData) => {
+  console.log(newData)
+})
+
 </script>
 
 <template>

@@ -1,22 +1,11 @@
 <script setup lang="js">
-import { ref } from 'vue'
-
 const props = defineProps({
+  // cell_id наверное всё-таки рудимент тоже, потому что для других игр id будет неявно.
   cell_id: Number,
+  row: Number,
+  col: Number,
   symbol: String,
 })
-
-// const msg = ref('idle')
-
-// const states = {
-//   idle: '',
-//   miss: '0',
-//   hit: 'x',
-// }
-
-// const onClick = () => {
-//   msg.value = props.symbol
-// }
 </script>
 
 <template>
@@ -29,9 +18,4 @@ const props = defineProps({
 </template>
 
 <style scoped>
-/* .idle {
-  background-color: gray;
-  width: 240px;
-  height: 240px;
-} */
 </style>
