@@ -1,7 +1,7 @@
 <template>
  <div class="relative overflow-hidden w-80 h-60 bg-white rounded-4xl shadow-xl p-6">
   <div class="z-10">
-    <AppStatusPin :status="status"/>
+    <AppStatusPin :status="status" :cnt_players="playerCount"/>
       <h1 class="text-md text-gray-700 font-semibold pt-2">Комната:</h1>
       <h1 class="text-xs text-gray-700">{{id}}</h1>
       <h1 class="text-md text-gray-700 font-semibold pt-2 flex flex-nowrap">
@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUpdated, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import AppIcon from './AppIcon.vue';
 import type { Player } from '@/types/types';
 import AppStatusPin from './AppStatusPin.vue';
@@ -41,5 +41,16 @@ onMounted(() => {
       players_names.value = Object.values(props.players).map(player => player.name).join(', ');
     }
   }
+});
+
+const playerCount = computed(() => {
+  if (props.players) {
+    if (Array.isArray(props.players)) {
+      return props.players.length;
+    } else {
+      return Object.keys(props.players).length;
+    }
+  }
+  return 0;
 });
 </script>

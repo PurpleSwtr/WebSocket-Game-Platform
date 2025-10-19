@@ -10,5 +10,12 @@ export interface Session {
   status: string;
 }
 
+export interface TicTacToeData {
+  field: [[any]]
+  current_turn: string,
+  winner: string,
+  draw: boolean,
+}
+
 export const BackendURL = "localhost:8000/api_v1/"
 export const WebSocketURL = "websocket/ws/"
