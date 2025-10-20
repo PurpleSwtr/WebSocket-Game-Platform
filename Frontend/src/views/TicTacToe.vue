@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Cell from '@/components/Cell.vue'
 import Field from '@/components/TicTacToe/Field.vue'
+import WaitingForm from '@/components/ui/WaitingForm.vue'
 import { useWS } from '@/composables'
 import { usePlayerStore } from '@/stores/playerStore'
 import type { MessageWS } from '@/types/types'
@@ -35,8 +36,11 @@ console.log(ws_data.value)
     <main class="flex justify-center items-center min-h-screen">
       <!-- <Field :session_id="`${$route.params.id}`"/> -->
       <Field
-          v-if="ws_data.field"
+          v-if="ws_data.field && ws_data.players && Object.keys(ws_data.players).length === 2"
           :data="ws_data.field"
+        />
+      <WaitingForm v-else
+        :session_id="sessionId"
         />
     </main>
   </div>
