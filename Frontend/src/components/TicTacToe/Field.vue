@@ -7,13 +7,14 @@ import { onMounted, ref, watch } from 'vue';
 // import { usePlayerStore } from '@/stores/player';
 
 const props = defineProps<{
-  data: (string | null)[][]
+  field_data: (string | null)[][]
+  current_turn: string
 }>()
 
 const field = ref<(string | null)[]>([])
-field.value = props.data.flat()
+field.value = props.field_data.flat()
 
-console.log(props.data)
+console.log(props.field_data)
 
 const emit = defineEmits(['fieldClick'])
 
@@ -36,7 +37,7 @@ const onCellClick = (cellData: {id: number}) => {
   }
 }
 
-watch(props.data, (newData) => {
+watch(props.field_data, (newData) => {
   if (newData) {
     field.value = newData.flat()
   }
@@ -46,7 +47,7 @@ watch(props.data, (newData) => {
 </script>
 
 <template>
-  <!-- <div class="absolute top-30">{{ current_player.id }}</div> -->
+  <div class="absolute top-70 text-2xl font-semibold text-gray-500">Сейчас ходит: {{ current_turn }}</div>
   <div class="grid grid-cols-3 gap-[0.1px]">
     <Cell
       v-for="(cellSymbol, index) in field"

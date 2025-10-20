@@ -2,7 +2,10 @@
 <template>
   <div>
   <input type="text" placeholder="ID" class="bg-white border-2 mx-50 mt-5" v-model="playerId"></input>
-  <AppButton message="Создать сессию" @click="onCreateSession"></AppButton>
+  <AppButton
+  message="Создать сессию"
+  loading_massage="Создаём..."
+  @click="onCreateSession"></AppButton>
   <div class="p-20 grid grid-cols-3 gap-10">
 
     <div v-if="isLoading" class="p-4">
@@ -23,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { useApi, useWS } from '@/composables';
+import { useApi} from '@/composables';
 import { ref, onMounted } from 'vue';
 import { BackendURL, WebSocketURL, type Session } from '@/types/types';
 import CardSession from '@/components/ui/CardSession.vue';

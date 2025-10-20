@@ -33,5 +33,5 @@ export type MessageWS = MessageBase & MessageExtensions;
 
 // Рудимент по факту, потому что я понял что получать это можно прямо от окна.. Но иногда может и сможет пригодится
 export const FrontendURL = "192.168.1.67:5173/api_v1/"
-export const BackendURL = "localhost:8000/api_v1/"
+export const BackendURL = `${window.location.hostname}:8000/api_v1/`
 export const WebSocketURL = "websocket/ws/"

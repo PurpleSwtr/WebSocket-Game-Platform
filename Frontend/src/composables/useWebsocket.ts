@@ -8,11 +8,18 @@ import type { Ref } from 'vue'
 //   return { status, data, send, open, close }
 // }
 
-export const useWS = (session_id: string, query: object, dataRef: Ref<any>) => {
-  const ws = new WebSocket(`ws://${BackendURL}${WebSocketURL}${session_id}`)
+let ws: WebSocket | null = null;
+
+export const initWS = (session_id: string, dataRef: Ref<any>) => {
+  if (ws) {
+    return;
+  }
+
+  ws = new WebSocket(`ws://${BackendURL}${WebSocketURL}${session_id}`)
 
   ws.onopen = function (event) {
-    ws.send(JSON.stringify(query))
+    console.log("WebSocket init")
+    ws?.send(JSON.stringify({ action: "init" }))
   }
 
   ws.onmessage = function (event) {
@@ -25,7 +32,13 @@ export const useWS = (session_id: string, query: object, dataRef: Ref<any>) => {
 
   ws.onerror = function (error) {
     console.error('WebSocket Error:', error)
-    // Думаю, сомнительное решение, лучше просто в консоль
-    // dataRef.value = { error: 'WebSocket error' }
   }
+}
+
+export const sendWS = (query: object) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(query));
+    } else {
+        console.error("WebSocket не подключен.");
+    }
 }

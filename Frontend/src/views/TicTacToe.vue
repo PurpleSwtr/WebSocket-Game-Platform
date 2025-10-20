@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import Cell from '@/components/Cell.vue'
 import Field from '@/components/TicTacToe/Field.vue'
 import WaitingForm from '@/components/ui/WaitingForm.vue'
-import { useWS } from '@/composables'
 import { usePlayerStore } from '@/stores/playerStore'
 import type { MessageWS } from '@/types/types'
-// import type { Player } from '@/types/types'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import AppButton from '@/components/ui/AppButton.vue';
 import PrepareCard from '@/components/TicTacToe/PrepareCard.vue'
+import { initWS, sendWS } from '@/composables/useWebsocket'
 
 
 let ws_data = ref<any>({})
@@ -24,27 +21,36 @@ const store = usePlayerStore()
 const route = useRoute()
 const sessionId = route.params.id as string
 
-const onPrepareClick = (choose: string) => {
-  isLoading.value = !isLoading.value
-  const initialMessage: MessageWS = {
+const onFieldClick = (fieldClickData: { row: number, col: number }) => {
+  console.log([fieldClickData.row, fieldClickData.col])
+  const moveMessage: MessageWS = {
     user: store.player_id,
-    action: 'prepared',
+    action: 'move',
+    row: fieldClickData.row,
+    col: fieldClickData.col,
   }
-  useWS(sessionId, initialMessage, ws_data)
+  sendWS(moveMessage)
+}
+
+const onPrepareClick = (prepareData: { choose: string }) => {
+  isLoading.value = !isLoading.value
+
   const chooseMessage: MessageWS = {
     user: store.player_id,
     action: "choose",
-    type: choose
+    type: prepareData.choose
   }
-  useWS(sessionId, chooseMessage, ws_data)
-}
+  sendWS(chooseMessage)
 
-onMounted(() => {
-  const initialMessage: MessageWS = {
+  const preparedMessage: MessageWS = {
     user: store.player_id,
     action: 'prepared',
   }
-  useWS(sessionId, initialMessage, ws_data)
+  sendWS(preparedMessage)
+}
+
+onMounted(() => {
+  initWS(sessionId, ws_data)
 })
 
 </script>
@@ -57,7 +63,9 @@ onMounted(() => {
       </div>
       <Field
         v-else-if="ws_data.status === 'playing'"
-        :data="ws_data.field"
+        :field_data="ws_data.field"
+        :current_turn="ws_data.players[ws_data.current_turn].name"
+        @field-click="onFieldClick"
       />
       <WaitingForm v-else
         :session_id="sessionId"
