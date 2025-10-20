@@ -14,7 +14,7 @@
     shadow-md">
     <span v-if="!props.statusLoading">{{props.message}}</span>
     <span v-else class="inline-flex items-center gap-x-2">
-        Загрузка
+        {{loading_massage}}
         <LoadingCircle class="text-base " />
     </span>
     </button>
@@ -26,6 +26,7 @@
 
     const props = defineProps<{
         message: string
+        loading_massage: string
         statusLoading?: boolean
     }>()
 

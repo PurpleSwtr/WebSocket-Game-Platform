@@ -19,7 +19,7 @@ onMounted(() => {
 
 </script>
 <template>
-  <div class="h-70 bg-white rounded-3xl flex flex-col items-center justify-center gap-4 px-8 py-6 scale-130">
+  <div class="h-70 bg-white rounded-3xl flex flex-col items-center justify-center gap-4 px-8 py-6 scale-130 shadow-xl">
     <div class="flex items-center gap-5">
       <h1 class="text-2xl">
         Ожидание игроков

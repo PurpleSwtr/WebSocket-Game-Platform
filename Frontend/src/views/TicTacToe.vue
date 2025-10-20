@@ -6,11 +6,15 @@ import { useWS } from '@/composables'
 import { usePlayerStore } from '@/stores/playerStore'
 import type { MessageWS } from '@/types/types'
 // import type { Player } from '@/types/types'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import AppButton from '@/components/ui/AppButton.vue';
+import PrepareCard from '@/components/TicTacToe/PrepareCard.vue'
 
 
 let ws_data = ref<any>({})
+
+const isLoading = ref(false)
 
 watch(ws_data, (newData) => {
   console.log(newData)
@@ -20,25 +24,41 @@ const store = usePlayerStore()
 const route = useRoute()
 const sessionId = route.params.id as string
 
-const testMessage: MessageWS = {
-  user: store.player_id,
-  action: 'prepared',
+const onPrepareClick = (choose: string) => {
+  isLoading.value = !isLoading.value
+  const initialMessage: MessageWS = {
+    user: store.player_id,
+    action: 'prepared',
+  }
+  useWS(sessionId, initialMessage, ws_data)
+  const chooseMessage: MessageWS = {
+    user: store.player_id,
+    action: "choose",
+    type: choose
+  }
+  useWS(sessionId, chooseMessage, ws_data)
 }
 
-useWS(sessionId, testMessage, ws_data)
-console.log(ws_data.value)
-
+onMounted(() => {
+  const initialMessage: MessageWS = {
+    user: store.player_id,
+    action: 'prepared',
+  }
+  useWS(sessionId, initialMessage, ws_data)
+})
 
 </script>
 <template>
   <div>
     TicTacToe {{ $route.params.id }}
     <main class="flex justify-center items-center min-h-screen">
-      <!-- <Field :session_id="`${$route.params.id}`"/> -->
+      <div v-if="ws_data.status === 'ready'">
+        <PrepareCard @prepare-click="onPrepareClick" :markersData="ws_data.markers" :isLoading="isLoading"/>
+      </div>
       <Field
-          v-if="ws_data.field && ws_data.players && Object.keys(ws_data.players).length === 2"
-          :data="ws_data.field"
-        />
+        v-else-if="ws_data.status === 'playing'"
+        :data="ws_data.field"
+      />
       <WaitingForm v-else
         :session_id="sessionId"
         />
