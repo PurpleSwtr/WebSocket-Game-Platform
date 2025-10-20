@@ -29,11 +29,14 @@ import { BackendURL, WebSocketURL, type Session } from '@/types/types';
 import CardSession from '@/components/ui/CardSession.vue';
 import { useRouter } from 'vue-router';
 import AppButton from '@/components/ui/AppButton.vue';
+import { usePlayerStore } from '@/stores/playerStore';
 
 const sessions = ref<Session[]>([]);
 const isLoading = ref(true);
 const playerId = ref('')
 const router = useRouter()
+
+const store = usePlayerStore()
 
 const onCreateSession = async () => {
   try {
@@ -41,6 +44,9 @@ const onCreateSession = async () => {
     const response = await useApi.post(endpoint, {});
     const newSession: Session = response.data;
     router.push(`/session/${newSession.session_id}`);
+
+    store.addPlayerId(playerId.value)
+
   } catch (error) {
     console.error("Ошибка при создании сессии:", error);
   }
