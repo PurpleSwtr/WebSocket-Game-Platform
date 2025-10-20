@@ -37,25 +37,19 @@ const onCellClick = (cellData: {id: number}) => {
   }
 }
 
-watch(props.field_data, (newData) => {
-  if (newData) {
-    field.value = newData.flat()
-  }
-})
-
-
 </script>
 
 <template>
-  <div class="absolute top-70 text-2xl font-semibold text-gray-500">Сейчас ходит: {{ current_turn }}</div>
-  <div class="grid grid-cols-3 gap-[0.1px]">
+  <div class="absolute top-30 text-2xl font-semibold text-gray-500 scale-120">Сейчас ходит: {{ current_turn }}</div>
+  <div class="grid grid-cols-3 gap-[0.1px] scale-200">
     <Cell
-      v-for="(cellSymbol, index) in field"
+      v-for="(cellSymbol, index) in field_data.flat()"
       :key="index"
       :cell_id="index"
       :symbol="cellSymbol"
       @cellClick="onCellClick"
-    ></Cell>
+    >
+  </Cell>
   </div>
 </template>
 

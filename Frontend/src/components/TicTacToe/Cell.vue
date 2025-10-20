@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
+import AppIcon from '../ui/AppIcon.vue';
+import { icons_map } from '@/types/types';
 
 const props = defineProps<{
   cell_id: number
@@ -14,14 +16,25 @@ const onCellClick = () => {
   })
 }
 
+const iconDetails = computed(() => {
+  if (!props.symbol) {
+    return null;
+  }
+  return Object.values(icons_map.value).find(icon => icon.symbol === props.symbol) || null;
+});
 </script>
 
 <template>
   <div
-    class="bg-gray-300 w-8 h-8 rounded-xl m-1 hover:bg-gray-400 transition-colors duration-100 hover:cursor-pointer text-center p-1"
     @click="onCellClick"
+    :class="[
+      'w-8 h-8 rounded-xl m-1 transition-colors duration-100 flex justify-center items-center',
+      iconDetails
+        ? [iconDetails.color, 'text-white', 'cursor-default']
+        : 'bg-gray-200 hover:bg-gray-300 hover:cursor-pointer'
+    ]"
   >
-    <p>{{ symbol }}</p>
+    <AppIcon v-if="iconDetails" :icon_name="iconDetails.icon" class="scale-90"/>
   </div>
 </template>
 

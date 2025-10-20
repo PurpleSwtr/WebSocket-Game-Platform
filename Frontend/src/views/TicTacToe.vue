@@ -7,6 +7,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PrepareCard from '@/components/TicTacToe/PrepareCard.vue'
 import { initWS, sendWS } from '@/composables/useWebsocket'
+import { useApi } from '@/composables'
 
 
 let ws_data = ref<any>({})
@@ -49,9 +50,30 @@ const onPrepareClick = (prepareData: { choose: string }) => {
   sendWS(preparedMessage)
 }
 
-onMounted(() => {
-  initWS(sessionId, ws_data)
-})
+onMounted(async () => {
+  if (!store.player_id) {
+    try {
+      const response = await useApi.patch(`session/join_session/${sessionId}`, null);
+
+      const players = response.data.players;
+      const playerIds = Object.keys(players);
+
+      const myNewId = playerIds[playerIds.length - 1];
+
+      if (myNewId) {
+        store.addPlayerId(myNewId);
+      } else {
+        throw new Error("Не удалось получить ID игрока от сервера.");
+      }
+
+    } catch (error) {
+      console.error("Ошибка при присоединении гостя:", error);
+      alert("Не удалось присоединиться к сессии. Возможно, она уже заполнена.");
+      return;
+    }
+  }
+  initWS(sessionId, ws_data);
+});
 
 </script>
 <template>

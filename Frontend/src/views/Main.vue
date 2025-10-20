@@ -46,11 +46,11 @@ const onCreateSession = async () => {
     const endpoint = `session/create_session/?player_id=${playerId.value}`;
     const response = await useApi.post(endpoint, {});
     const newSession: Session = response.data;
-    router.push(`/session/${newSession.session_id}`);
 
     if (playerId.value) {
       store.addPlayerId(playerId.value)
     }
+    router.push(`/session/${newSession.session_id}`);
 
   } catch (error) {
     console.error("Ошибка при создании сессии:", error);
