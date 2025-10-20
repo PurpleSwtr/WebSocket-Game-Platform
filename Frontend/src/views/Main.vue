@@ -45,7 +45,9 @@ const onCreateSession = async () => {
     const newSession: Session = response.data;
     router.push(`/session/${newSession.session_id}`);
 
-    store.addPlayerId(playerId.value)
+    if (playerId.value) {
+      store.addPlayerId(playerId.value)
+    }
 
   } catch (error) {
     console.error("Ошибка при создании сессии:", error);
@@ -58,6 +60,11 @@ const onSessionOpen = async (session_id: string) => {
       ? `session/join_session/${session_id}?player_id=${playerId.value}`
       : `session/join_session/${session_id}`;
     await useApi.patch(endpoint, null);
+
+    if (playerId.value) {
+      store.addPlayerId(playerId.value);
+    }
+
     router.push(`/session/${session_id}`);
   } catch (error) {
     console.error("Ошибка при присоединении к сессии:", error);

@@ -17,5 +17,19 @@ export interface TicTacToeData {
   draw: boolean,
 }
 
+export interface MessageBase {
+  user: string;
+  action: string;
+}
+
+export interface MessageExtensions {
+  row?: number;
+  cel?: number;
+  type?: string;
+  [key: string]: any;
+}
+
+export type MessageWS = MessageBase & MessageExtensions;
+
 export const BackendURL = "localhost:8000/api_v1/"
 export const WebSocketURL = "websocket/ws/"

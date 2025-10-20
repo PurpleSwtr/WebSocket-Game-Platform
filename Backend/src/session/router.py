@@ -33,7 +33,7 @@ async def get_sessions():
 async def delete_session(id_session: str) -> None:
     if id_session not in active_sessions:
         raise HTTPException(status_code=404, detail="Сессия не найдена")
-    active_sessions[id_session] = None
+    del active_sessions[id_session]
     return
 
 @router.patch("/join_session/{session_id}", response_model=GameSession)

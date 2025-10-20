@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 
-const props = defineProps({
-  // cell_id наверное всё-таки рудимент тоже, потому что для других игр id будет неявно.
-  cell_id: Number,
-  symbol: String,
-})
+const props = defineProps<{
+  cell_id: number
+  symbol: string | null
+}>()
 
 const emit = defineEmits(['cellClick'])
 
