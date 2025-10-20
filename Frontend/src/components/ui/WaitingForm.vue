@@ -24,7 +24,7 @@ onMounted(() => {
       <h1 class="text-2xl">
         Ожидание игроков
       </h1>
-      <div class="animate-bounce">
+      <div>
         <LoadingCircle class="scale-150"/>
       </div>
     </div>
@@ -35,7 +35,7 @@ onMounted(() => {
         type="text"
         :value="link"
         readonly
-        class=" text-xs text-center border-1 rounded-md px-2 py-1 mt-2 w-120 border-blue-600 outline-blue-600"
+        class=" text-xs text-center border-1 rounded-md py-1 mt-2 w-130 border-blue-600 outline-blue-600 font-mono"
       />
     </div>
   </div>

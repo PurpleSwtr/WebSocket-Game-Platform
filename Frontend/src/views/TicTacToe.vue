@@ -3,10 +3,10 @@ import Field from '@/components/TicTacToe/Field.vue'
 import WaitingForm from '@/components/ui/WaitingForm.vue'
 import { usePlayerStore } from '@/stores/playerStore'
 import type { MessageWS } from '@/types/types'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PrepareCard from '@/components/TicTacToe/PrepareCard.vue'
-import { initWS, sendWS } from '@/composables/useWebsocket'
+import { disconnectWS, initWS, sendWS } from '@/composables/useWebsocket'
 import { useApi } from '@/composables'
 
 
@@ -75,12 +75,16 @@ onMounted(async () => {
   initWS(sessionId, ws_data);
 });
 
+onUnmounted(() => {
+  disconnectWS();
+});
+
 </script>
 <template>
   <div>
     TicTacToe {{ $route.params.id }}
     <main class="flex justify-center items-center min-h-screen">
-      <div v-if="ws_data.status === 'ready'">
+      <div v-if="ws_data.status === 'ready' || ws_data.status === 'ready_to_start'">
         <PrepareCard @prepare-click="onPrepareClick" :markersData="ws_data.markers" :isLoading="isLoading"/>
       </div>
       <Field

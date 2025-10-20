@@ -43,6 +43,13 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         return
 
     await manager.connect(websocket, session_id)
+    session = active_sessions[session_id]
+    
+    await websocket.send_text(session.model_dump_json())
+
+    if len(session.players) == REQUIRED_PLAYERS and session.status == "ready":
+         await manager.broadcast_to_session(session.model_dump_json(), session_id)
+
     try:
         # Тут прям жёстко намудрил с логикой, и однажды это станет большой проблемой.
         # TODO: Стоит переписать на какие-нибудь elif'ы, либо вообще прописать какую-нибудь
@@ -53,8 +60,6 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
 
             massage = json.loads(data)
             session = active_sessions[session_id]
-            if len(session.players) == REQUIRED_PLAYERS and session.status in ["waiting", "ready_to_start"]:
-                session.status = "ready"
             if session.status == "ready":
                 if massage["action"] == "choose":
                     if massage["type"] != '':

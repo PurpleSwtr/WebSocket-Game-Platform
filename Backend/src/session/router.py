@@ -2,7 +2,7 @@
 from typing import Optional
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
-
+from ..websocket.router import manager
 from ..core.models import GameSession, Player, active_sessions, players_db
 
 router = APIRouter(prefix='/session', tags=['Комнаты'])
@@ -63,6 +63,7 @@ async def join_to_session(session_id: str, player_id: Optional[UUID] = Query(Non
     current_session.players[player.id] = player
     
     if len(current_session.players) == 2:
-        current_session.status = "ready_to_start"
+        current_session.status = "ready" 
+        await manager.broadcast_to_session(current_session.model_dump_json(), session_id)
 
     return current_session

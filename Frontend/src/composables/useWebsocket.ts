@@ -10,6 +10,15 @@ import type { Ref } from 'vue'
 
 let ws: WebSocket | null = null;
 
+export const disconnectWS = () => {
+    if (ws) {
+        ws.onclose = null;
+        ws.close();
+        ws = null;
+        console.log("WebSocket disconnected.");
+    }
+};
+
 export const initWS = (session_id: string, dataRef: Ref<any>) => {
   if (ws) {
     return;
@@ -18,11 +27,11 @@ export const initWS = (session_id: string, dataRef: Ref<any>) => {
   ws = new WebSocket(`ws://${BackendURL}${WebSocketURL}${session_id}`)
 
   ws.onopen = function (event) {
-    console.log("WebSocket init")
-    ws?.send(JSON.stringify({ action: "init" }))
+    console.log("WebSocket init", session_id)
   }
 
   ws.onmessage = function (event) {
+    console.log(event.data);
     try {
       dataRef.value = JSON.parse(event.data)
     } catch {
@@ -32,6 +41,11 @@ export const initWS = (session_id: string, dataRef: Ref<any>) => {
 
   ws.onerror = function (error) {
     console.error('WebSocket Error:', error)
+  }
+
+    ws.onclose = function () {
+    console.log("WebSocket connection closed.");
+    ws = null;
   }
 }
 
