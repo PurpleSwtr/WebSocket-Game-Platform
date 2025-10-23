@@ -26,7 +26,7 @@
 
     const props = defineProps<{
         message: string
-        loading_massage: string
+        loading_massage?: string
         statusLoading?: boolean
     }>()
 

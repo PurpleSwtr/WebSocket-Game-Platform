@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Main from "@/views/Main.vue"
 import Session from '@/views/Session.vue'
 import TicTacToe from '@/views/TicTacToe.vue'
+import MainPage from '@/layouts/MainPage.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -10,7 +11,7 @@ const router = createRouter({
     children: [
       {
         path: '',
-        component: Main,
+        component: MainPage,
       },
       {
         path: 'session/:id',
