@@ -21,7 +21,7 @@ python -m uvicorn Backend.src.main:app --reload --host 0.0.0.0 --port 8000
 ```
 ### DEV: Запуск сервера NPM:
 ```
-cd Frontend && npm run dev -- --host
+cd Frontend && npm run dev -- --host 0.0.0.0
 ```
 ```http://127.0.0.1:8000/docs```
 
