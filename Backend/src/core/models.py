@@ -1,11 +1,16 @@
-from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
 import random
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, Field
+
+
 class Player(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str
 
+
 players_db: dict[UUID, Player] = {}
+
 
 # TODO: Подумать над тем, чтобы сделать все методы асинхронными
 # Потому что это перерастёт в большую проблему, если вдруг окажется что сессия
@@ -13,13 +18,16 @@ players_db: dict[UUID, Player] = {}
 class GameSession(BaseModel):
     session_id: str
     players: dict[UUID, Player] = {}
-    field: list[list[str]] = Field(default_factory=lambda: [[None, None, None] for _ in range(3)])
+    field: list[list[str]] = Field(
+        default_factory=lambda: [[None, None, None] for _ in range(3)]
+    )
     current_turn: UUID = None
     winner_player: UUID = None
     markers: dict[UUID, str] = {}
     prepared_players: list[UUID] = []
     voted_restart: list[UUID] = []
     status: str = "waiting"
+
     # TODO: Сделать проерку на несуществующие типы, задать те которые подразумеваются,
     # по типу крестик, ноль, другие фигуры которые подразумеваются для разнообразия, как фича.
     # При этом также учитывать, что пользователи не могут выбрать одну и ту же, если она уже выбрана
@@ -29,20 +37,20 @@ class GameSession(BaseModel):
 
     #   0 1 2
     # 0 * * *
-    # 1 * * * 
+    # 1 * * *
     # 2 * * *
 
     # async def win_check(self):
     def win_check(self):
         win_combos = [
-            [(0,0),(1,1),(2,2)],
-            [(0,2),(1,1),(2,0)],
-            [(0,0),(0,1),(0,2)],
-            [(1,0),(1,1),(1,2)],
-            [(2,0),(2,1),(2,2)],
-            [(0,0),(1,0),(2,0)],
-            [(0,1),(1,1),(2,1)],
-            [(0,2),(1,2),(2,2)],
+            [(0, 0), (1, 1), (2, 2)],
+            [(0, 2), (1, 1), (2, 0)],
+            [(0, 0), (0, 1), (0, 2)],
+            [(1, 0), (1, 1), (1, 2)],
+            [(2, 0), (2, 1), (2, 2)],
+            [(0, 0), (1, 0), (2, 0)],
+            [(0, 1), (1, 1), (2, 1)],
+            [(0, 2), (1, 2), (2, 2)],
         ]
 
         for win_comb in win_combos:
@@ -50,10 +58,10 @@ class GameSession(BaseModel):
             for r, c in win_comb:
                 symb = self.field[r][c]
                 symbols.append(symb)
-            if len(set(symbols)) == 1 and not None in set(symbols):
+            if len(set(symbols)) == 1 and None not in set(symbols):
                 return True
         return False
-    
+
     def draw_check(self):
         for col in range(3):
             cells = []
@@ -61,10 +69,11 @@ class GameSession(BaseModel):
                 cells.append(cell)
         if None in cells:
             return False
-        else: return True
+        else:
+            return True
 
     def roll_first_turn(self) -> None:
-        self.current_turn = list(self.players.keys())[random.randint(0,1)]
+        self.current_turn = list(self.players.keys())[random.randint(0, 1)]
 
     def change_turn(self):
         players = list(self.players.keys())
@@ -72,14 +81,14 @@ class GameSession(BaseModel):
             return None
         # Она тут по факту уже не нужна, так как вынесена в отдельный метод перед началом игры, но во избежании ошибок когда никто вдруг не может походить можно и оставить проверочку
         if self.current_turn is None:
-            self.current_turn = players[random.randint(0,1)]
+            self.current_turn = players[random.randint(0, 1)]
         else:
             current_index = players.index(self.current_turn)
             next_index = (current_index + 1) % len(players)
             self.current_turn = players[next_index]
-        
+
         return self.current_turn
-    
+
     def action_move(self, user_id: UUID, row: str, col: str) -> bool:
         row = int(row)
         col = int(col)
@@ -92,7 +101,7 @@ class GameSession(BaseModel):
         if self.field[row][col] is not None:
             return False
 
-        self.field[row][col] = self.markers[user_id] 
+        self.field[row][col] = self.markers[user_id]
 
         if self.win_check():
             self.status = "finished"
@@ -100,7 +109,7 @@ class GameSession(BaseModel):
         elif self.draw_check():
             self.status = "finished"
         return True
-    
+
     def action_exit(self, user_id: UUID):
         self.players[user_id] = None
 
@@ -115,9 +124,10 @@ class GameSession(BaseModel):
                     line += f" {cell} "
             print(line)
 
+
 active_sessions: dict[str, GameSession] = {}
 
-# NOTE: МОЯ ТЕСТОВАЯ ЗОНА - НЕ ЗАБЫВАЙ, ЕЁ НУЖНО КОММЕНТИРОВАТЬ ПРИ ЗАПУСКЕ СЕРВЕРА, 
+# NOTE: МОЯ ТЕСТОВАЯ ЗОНА - НЕ ЗАБЫВАЙ, ЕЁ НУЖНО КОММЕНТИРОВАТЬ ПРИ ЗАПУСКЕ СЕРВЕРА,
 # ПОТОМУ ЧТО ЭТО ИСПОЛНЯЕМЫЙ КОД, А В ДАЛЬНЕЙШЕМ ОН ИМПОРТИРУЕТСЯ КАК МОДУЛЬ
 
 # gs = GameSession(session_id="1")
@@ -162,6 +172,6 @@ active_sessions: dict[str, GameSession] = {}
 #     ]
 # draw_check = gs.draw_check()
 # win_check = gs.win_check()
-    
+
 # print(win_check)
 # print(draw_check)

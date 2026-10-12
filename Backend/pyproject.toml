@@ -1,0 +1,15 @@
+[project]
+name = "websocket-game-platform"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi",
+    "websockets",
+    "uvicorn",
+    "pydantic-settings",
+    "pydantic",
+    "sqlalchemy[asyncio]",
+    "sqlmodel",
+    "alembic",
+    "asyncpg",
+]

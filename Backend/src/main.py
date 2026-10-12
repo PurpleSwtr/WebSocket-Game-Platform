@@ -1,11 +1,9 @@
-from typing import Annotated
-
-from fastapi import FastAPI, Form
-# from fastapi.datastructures import FormData
-
-from .core.models import Player, GameSession
-from .api import main_router
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from src.api.router import main_router
+
+print("http://127.0.0.1:8000/docs")
+
 app = FastAPI()
 
 # CORS КОНИФГ
@@ -28,6 +26,3 @@ app.add_middleware(
 )
 
 app.include_router(main_router, prefix="/api_v1")
-
-# router = APIRouter(prefix='/users', tags='Пользователи')
-
