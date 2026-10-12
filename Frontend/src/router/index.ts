@@ -11,7 +11,7 @@ const router = createRouter({
     children: [
       {
         path: '',
-        component: MainPage,
+        component: Main,
       },
       {
         path: 'session/:id',

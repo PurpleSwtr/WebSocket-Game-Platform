@@ -82,7 +82,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div>
-    TicTacToe {{ $route.params.id }}
+    <!-- TicTacToe {{ $route.params.id }} -->
     <main class="flex justify-center items-center min-h-screen">
       <div v-if="ws_data.status === 'ready' || ws_data.status === 'ready_to_start'">
         <PrepareCard @prepare-click="onPrepareClick" :markersData="ws_data.markers" :isLoading="isLoading"/>
