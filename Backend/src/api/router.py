@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from src.session.router import router as session_router
 from src.users.router import router as router_users
 from src.websocket.router import router as websocket_router

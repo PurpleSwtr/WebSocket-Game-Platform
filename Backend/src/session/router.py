@@ -1,9 +1,6 @@
-# src/session/router.py
-from typing import Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, HTTPException, Query
-
 from src.core.models import GameSession, Player, active_sessions, players_db
 from src.websocket.router import manager
 
@@ -38,11 +35,10 @@ async def delete_session(id_session: str) -> None:
     if id_session not in active_sessions:
         raise HTTPException(status_code=404, detail="Сессия не найдена")
     del active_sessions[id_session]
-    return
 
 
 @router.patch("/join_session/{session_id}", response_model=GameSession)
-async def join_to_session(session_id: str, player_id: Optional[UUID] = Query(None)):
+async def join_to_session(session_id: str, player_id: UUID | None = Query(None)):
     current_session = active_sessions.get(session_id)
     if not current_session:
         raise HTTPException(status_code=404, detail="Сессия не найдена")
@@ -51,14 +47,14 @@ async def join_to_session(session_id: str, player_id: Optional[UUID] = Query(Non
         if player_id is None or player_id not in current_session.players:
             raise HTTPException(status_code=409, detail="Сессия уже заполнена")
 
-    player: Optional[Player] = None
+    player: Player | None = None
 
     if player_id:
         player = players_db.get(player_id)
         if not player:
             raise HTTPException(status_code=404, detail="Игрок не найден")
     else:
-        guest_name = f"Гость#{str(uuid4())[:4]}"
+        guest_name = f"Гость#{str(uuid4())[:-8]}"
         player = Player(name=guest_name)
         players_db[player.id] = player
 

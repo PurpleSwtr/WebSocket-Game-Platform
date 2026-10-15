@@ -2,6 +2,7 @@ import random
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
+from src.core.enums import SessionState
 
 
 class Player(BaseModel):
@@ -18,15 +19,17 @@ players_db: dict[UUID, Player] = {}
 class GameSession(BaseModel):
     session_id: str
     players: dict[UUID, Player] = {}
-    field: list[list[str]] = Field(
+    field: list[list[str | None]] = Field(
         default_factory=lambda: [[None, None, None] for _ in range(3)]
     )
-    current_turn: UUID = None
-    winner_player: UUID = None
+    current_turn: UUID | None = None
+    winner_player: UUID | None = None
     markers: dict[UUID, str] = {}
     prepared_players: list[UUID] = []
     voted_restart: list[UUID] = []
     status: str = "waiting"
+
+    state: SessionState = SessionState.WAITING_PLAYERS
 
     # TODO: Сделать проерку на несуществующие типы, задать те которые подразумеваются,
     # по типу крестик, ноль, другие фигуры которые подразумеваются для разнообразия, как фича.
@@ -63,14 +66,7 @@ class GameSession(BaseModel):
         return False
 
     def draw_check(self):
-        for col in range(3):
-            cells = []
-            for cell in self.field[col]:
-                cells.append(cell)
-        if None in cells:
-            return False
-        else:
-            return True
+        return all(None not in col for col in self.field)
 
     def roll_first_turn(self) -> None:
         self.current_turn = list(self.players.keys())[random.randint(0, 1)]
@@ -89,9 +85,7 @@ class GameSession(BaseModel):
 
         return self.current_turn
 
-    def action_move(self, user_id: UUID, row: str, col: str) -> bool:
-        row = int(row)
-        col = int(col)
+    def action_move(self, user_id: UUID, row: int, col: int) -> bool:
         if not isinstance(row, int) or not isinstance(col, int):
             return False
         if row > 2 or col > 2:
@@ -110,68 +104,11 @@ class GameSession(BaseModel):
             self.status = "finished"
         return True
 
+    # TODO: Нигде не вызывается
+    # Придумать как потом просто вытащить пользователя, и отконектить именно его
     def action_exit(self, user_id: UUID):
-        self.players[user_id] = None
-
-    def dev_draw_field(self):
-        for row in range(3):
-            line = ""
-            for col in range(3):
-                cell = self.field[row][col]
-                if cell is None:
-                    line += " - "
-                else:
-                    line += f" {cell} "
-            print(line)
+        # self.players[user_id] = None
+        ...
 
 
 active_sessions: dict[str, GameSession] = {}
-
-# NOTE: МОЯ ТЕСТОВАЯ ЗОНА - НЕ ЗАБЫВАЙ, ЕЁ НУЖНО КОММЕНТИРОВАТЬ ПРИ ЗАПУСКЕ СЕРВЕРА,
-# ПОТОМУ ЧТО ЭТО ИСПОЛНЯЕМЫЙ КОД, А В ДАЛЬНЕЙШЕМ ОН ИМПОРТИРУЕТСЯ КАК МОДУЛЬ
-
-# gs = GameSession(session_id="1")
-
-# p1 = Player(name="jonh")
-# p2 = Player(name="bob")
-
-# gs.markers[p1.id] = "X"
-# gs.markers[p2.id] = "O"
-
-# gs.players[p1.id] = p1
-# gs.players[p2.id] = p2
-
-# gs.current_turn = p1.id
-
-# while gs.status == "waiting":
-#     r = input()
-#     c = input()
-#     move = gs.action_move(user_id=gs.current_turn, row=r, col=c)
-#     if move:
-#         gs.change_turn()
-
-#     gs.dev_draw_field()
-
-# print(gs.status)
-
-# print(gs.winner_player)
-
-# gs.change_turn(user_id=p1.id)
-# print(gs.current_turn)
-# gs.change_turn(user_id=p1.id)
-# print(gs.current_turn)
-# gs.change_turn(user_id=p1.id)
-# print(gs.current_turn)
-# gs.change_turn(user_id=p1.id)
-# print(gs.current_turn)
-
-# gs.field=[
-#     ["1","0","1"],
-#     ["1","1","1"],
-#     ["0",None,"0"]
-#     ]
-# draw_check = gs.draw_check()
-# win_check = gs.win_check()
-
-# print(win_check)
-# print(draw_check)

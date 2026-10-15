@@ -1,10 +1,8 @@
 import json
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
-
-from ..core.models import active_sessions
+from src.core.models import active_sessions
 
 router = APIRouter(prefix="/websocket", tags=["Веб-сокет"])
 
@@ -13,7 +11,7 @@ REQUIRED_PLAYERS = 2
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[str, List[WebSocket]] = {}
+        self.active_connections: dict[str, list[WebSocket]] = {}
 
     async def connect(self, websocket: WebSocket, session_id: str):
         await websocket.accept()
@@ -88,46 +86,49 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         while True:
             data = await websocket.receive_text()
 
-            massage = json.loads(data)
+            message = json.loads(data)
             session = active_sessions[session_id]
-            if session.status == "ready":
-                if massage["action"] == "choose":
-                    if massage["type"] != "":
-                        session.choose_img(
-                            user_id=UUID(massage["user"]), marker_type=massage["type"]
-                        )
+            if all(
+                [
+                    session.status == "ready",
+                    message["action"] == "choose",
+                    message["type"] != "",
+                ]
+            ):
+                session.choose_img(
+                    user_id=UUID(message["user"]), marker_type=message["type"]
+                )
 
-                if massage["action"] == "prepared":
-                    user_uuid = UUID(massage["user"])
-                    if user_uuid not in session.prepared_players:
-                        session.prepared_players.append(user_uuid)
+            if message["action"] == "prepared":
+                user_uuid = UUID(message["user"])
+                if user_uuid not in session.prepared_players:
+                    session.prepared_players.append(user_uuid)
 
-                if (
-                    len(session.markers) == REQUIRED_PLAYERS
-                    and len(session.prepared_players) == REQUIRED_PLAYERS
-                ):
-                    session.status = "starting"
+            if (
+                len(session.markers) == REQUIRED_PLAYERS
+                and len(session.prepared_players) == REQUIRED_PLAYERS
+            ):
+                session.status = "starting"
 
             if session.status == "starting":
                 session.roll_first_turn()
                 session.status = "playing"
 
-            if session.status == "playing":
-                if massage["action"] == "move":
-                    user_uuid = UUID(massage["user"])
-                    if user_uuid == session.current_turn:
-                        move_successful = session.action_move(
-                            user_id=user_uuid,
-                            row=str(massage["row"]),
-                            col=str(massage["col"]),
-                        )
-                        if move_successful:
-                            session.change_turn()
+            if session.status == "playing" and message["action"] == "move":
+                user_uuid = UUID(message["user"])
+                if user_uuid == session.current_turn:
+                    move_successful = session.action_move(
+                        user_id=user_uuid,
+                        row=message["row"],
+                        col=message["col"],
+                    )
+                    if move_successful:
+                        session.change_turn()
             if session.status == "finished":
-                if massage["action"] == "restart":
-                    session.voted_restart.append(UUID(massage["user"]))
-                if massage["action"] == "exit":
-                    user_to_remove = UUID(massage["user"])
+                if message["action"] == "restart":
+                    session.voted_restart.append(UUID(message["user"]))
+                if message["action"] == "exit":
+                    user_to_remove = UUID(message["user"])
                     if user_to_remove in session.players:
                         session.players.pop(user_to_remove)
                     session.status = "waiting"
