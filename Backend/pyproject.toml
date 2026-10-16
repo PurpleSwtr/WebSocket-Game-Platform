@@ -13,3 +13,5 @@ dependencies = [
     "alembic",
     "asyncpg",
 ]
+
+# TODO: Нужно добавить сюда mkdocs и pytest в группы

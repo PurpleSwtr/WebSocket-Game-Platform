@@ -1,12 +1,15 @@
 from abc import ABC
 
+from src.core.enums import Markers
+from src.games.registry import GameType
+
 
 class GameConfig(ABC):
-    game_type: str
+    game_type: GameType
     displayed_name: str
+    description: str
     required_players: int
     min_players: int
     max_players: int
-    allowed_markers: list[str] | None
     preparation_phase: bool
-    description: str
+    allowed_markers: tuple[Markers, ...] | None = None

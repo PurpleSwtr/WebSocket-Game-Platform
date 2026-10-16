@@ -18,23 +18,38 @@ class SessionState(Enum):
     PLAYING = auto()
     FINISHED = auto()
     VOTING = auto()
-    RESTARTED = auto()
     CLOSED = auto()
 
 
 class SessionEvent(Enum):
+    # TODO: Можно разделить ещё на GameEvent чтобы разделить слои происходящего именно с сессией в целом, и в игре
     PLAYER_JOINED = auto()
-    PLAYER_PREPARE = auto()
+    PLAYER_READY = auto()
     PLAYER_LEAVE = auto()
     PLAYER_DISCONECTED = auto()
-    PLATER_VOTED = auto()
-
-    PLAYER_MOVE = auto()
-
     PLAYER_EMOTE = auto()
+    PLATER_VOTED = auto()
+    GAME_CHANGED = auto()
 
+
+class SessionVoted(Enum):
+    RESTART = auto()
+    GAME = auto()
+    EXIT = auto()
+
+
+class GameEvent(Enum):
+    PLAYER_MOVE = auto()
+    PLAYER_PREPARE = auto()
     GAME_WINNER = auto()
     GAME_DRAW = auto()
-    GAME_CHANGE_GAME = auto()
 
 
+class Markers(str, Enum):
+    FIRE = "fire"
+    SQUARE = "square"
+    LIGHTNING = "lightning"
+    CROSS = "cross"
+    CIRCLE = "circle"
+    WATER = "water"
+    TRIANGLE = "triangle"
